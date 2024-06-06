@@ -64,5 +64,11 @@ export async function fetchJobApplicationForCandidate(candidateID) {
 }
 
 // fetch job application - recruiter
+export async function fetchJobApplicationForRecruiter(recruiterID) {
+  await connectToDB();
+  const result = await Application.find({ recruiterUserID: recruiterID });
+
+  return JSON.parse(JSON.stringify(result));
+}
 
 // update job application
