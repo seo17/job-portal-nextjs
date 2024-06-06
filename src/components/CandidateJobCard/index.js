@@ -13,9 +13,28 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import { createJobApplicationAction } from "@/actions";
 
-function CandidateJobCard({ jobItem }) {
+function CandidateJobCard({ jobItem, profileInfo, jobApplications }) {
   const [showJobDetailsDrawer, setShowJobDetailsDrawer] = useState(false);
+
+  console.log("job applications", jobApplications);
+  async function handleJobApply() {
+    await createJobApplicationAction(
+      {
+        recruiterUserID: jobItem?.recruiterId,
+        name: profileInfo?.candidateInfo?.name,
+        email: profileInfo?.email,
+        candidateUserID: profileInfo?.userId,
+        status: ["Applied"],
+        jobID: jobItem?._id,
+        jobAppliedDate: new Date().toLocaleDateString(),
+      },
+      "/jobs"
+    );
+    setShowJobDetailsDrawer(false);
+  }
+
   return (
     <>
       <Drawer
@@ -42,8 +61,22 @@ function CandidateJobCard({ jobItem }) {
                 {jobItem?.title}
               </DrawerTitle>
               <div className="flex gap-3">
-                <Button className="flex h-11 items-center justify-center px-5">
-                  Apply
+                <Button
+                  onClick={handleJobApply}
+                  disabled={
+                    jobApplications.findIndex(
+                      (item) => item.jobID === jobItem?._id
+                    ) > -1
+                      ? true
+                      : false
+                  }
+                  className="disabled:opacity-65 flex h-11 items-center justify-center px-5"
+                >
+                  {jobApplications.findIndex(
+                    (item) => item.jobID === jobItem?._id
+                  ) > -1
+                    ? "Applied"
+                    : "Apply"}
                 </Button>
                 <Button
                   className="flex h-11 items-center justify-center px-5"
