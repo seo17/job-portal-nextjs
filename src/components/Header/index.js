@@ -66,6 +66,7 @@ function Header({ user, profileInfo }) {
               {menuItems.map((menuItem) =>
                 menuItem.show ? (
                   <Link
+                    key={menuItem.label}
                     className="flex w-full items-center py-2 text-lg font-semibold"
                     href={menuItem.path}
                   >
@@ -83,6 +84,7 @@ function Header({ user, profileInfo }) {
           {menuItems.map((menuItem) =>
             menuItem.show ? (
               <Link
+                key={menuItem.label}
                 className="inline-flex h-9 w-max items-center rounded-md bg-white px-4 py-2 text-sm font-medium"
                 href={menuItem.path}
               >

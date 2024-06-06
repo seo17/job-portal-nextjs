@@ -66,18 +66,34 @@ function Onboard() {
       recruiterFormData.companyRole.trim() !== ""
     );
   }
+  function handleCandidateFormValid() {
+    return Object.keys(candidateFormData).every(
+      (key) => candidateFormData[key].trim() !== ""
+    );
+  }
 
   async function createProfile() {
-    const data = {
-      recruiterInfo: recruiterFormData,
-      role: "recruiter",
-      isPremiumUser: false,
-      userId: user?.id,
-      email: user?.primaryEmailAddress?.emailAddress,
-    };
+    const data =
+      currentTab === "candidate"
+        ? {
+            candidateInfo: candidateFormData,
+            role: "candidate",
+            isPremiumUser: false,
+            userId: user?.id,
+            email: user?.primaryEmailAddress?.emailAddress,
+          }
+        : {
+            recruiterInfo: recruiterFormData,
+            role: "recruiter",
+            isPremiumUser: false,
+            userId: user?.id,
+            email: user?.primaryEmailAddress?.emailAddress,
+          };
 
     const result = await createProfileAction(data, "/onboard");
   }
+
+  console.log(candidateFormData);
 
   return (
     <div className="bg-white">
@@ -100,6 +116,8 @@ function Onboard() {
             formData={candidateFormData}
             setFormData={setCandidateFormData}
             handleFileChange={handleFileChange}
+            isBtnDisabled={!handleCandidateFormValid()}
+            action={createProfile}
           />
         </TabsContent>
         <TabsContent value="recruiter">

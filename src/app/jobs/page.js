@@ -1,4 +1,8 @@
-import { fetchJobForRecruiterAction, fetchProfileAction } from "@/actions";
+import {
+  fetchJobForCandidateAction,
+  fetchJobForRecruiterAction,
+  fetchProfileAction,
+} from "@/actions";
 import JobListing from "@/components/JobListing";
 import { currentUser } from "@clerk/nextjs/server";
 import React from "react";
@@ -9,7 +13,10 @@ async function page() {
   // Onboarding data
   const profileInfo = await fetchProfileAction(user?.id);
 
-  const jobList = await fetchJobForRecruiterAction(user?.id);
+  const jobList =
+    profileInfo?.role === "candidate"
+      ? await fetchJobForCandidateAction()
+      : await fetchJobForRecruiterAction(user?.id);
 
   console.log("Joblist", jobList);
 
