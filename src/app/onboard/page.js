@@ -10,6 +10,7 @@ async function OnboardPage() {
 
   // fetch profile info from db
   const profileInfo = await fetchProfileAction(user?.id);
+  console.log(profileInfo);
 
   // confirm profile, profile role and isPremiumUser
   if (profileInfo?._id) {

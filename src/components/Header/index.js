@@ -5,7 +5,7 @@ import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import { Button } from "../ui/button";
 import { AlignJustify } from "lucide-react";
 import Link from "next/link";
-import { SignedIn, UserButton } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
 
 function Header({ user, profileInfo }) {
   const menuItems = [
@@ -61,9 +61,8 @@ function Header({ user, profileInfo }) {
               <h3>JOBSCO</h3>
             </Link>
             <div className="grid gap-2 py-6">
-              <SignedIn>
-                <UserButton afterSignOutUrl="/" />
-              </SignedIn>
+              <UserButton afterSignOutUrl="/" />
+
               {menuItems.map((menuItem) =>
                 menuItem.show ? (
                   <Link
@@ -91,9 +90,7 @@ function Header({ user, profileInfo }) {
               </Link>
             ) : null
           )}
-          <SignedIn>
-            <UserButton afterSignOutUrl="/" />
-          </SignedIn>
+          <UserButton afterSignOutUrl="/" />
         </nav>
       </header>
     </div>

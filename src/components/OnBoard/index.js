@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CommonForm from "../CommonForm";
 import {
@@ -11,6 +11,12 @@ import {
 } from "@/utils";
 import { useUser } from "@clerk/nextjs";
 import { createProfileAction } from "@/actions";
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseClient = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
 
 function Onboard() {
   const [currentTab, setCurrentTab] = useState("candidate");
@@ -20,9 +26,33 @@ function Onboard() {
   const [candidateFormData, setCandidateFormData] = useState(
     initialCandidateFormData
   );
+
+  const [file, setFile] = useState(null);
+
   const currentAuthUser = useUser();
   const { user } = currentAuthUser;
-  console.log(user);
+
+  function handleFileChange(event) {
+    event.preventDefault();
+    setFile(event.target.files[0]);
+  }
+
+  async function handleUploadPdfToSupabase() {
+    const { data, error } = await supabaseClient.storage
+      .from("job-board")
+      .upload(`/public/${file.name}`, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+    console.log(data, error);
+    if (data) {
+      setCandidateFormData({ ...initialCandidateFormData, resume: data.path });
+    }
+  }
+
+  useEffect(() => {
+    if (file) handleUploadPdfToSupabase();
+  }, [file]);
 
   function handleTabChange(value) {
     setCurrentTab(value);
@@ -69,6 +99,7 @@ function Onboard() {
             buttonText={"Onboard as Candidate"}
             formData={candidateFormData}
             setFormData={setCandidateFormData}
+            handleFileChange={handleFileChange}
           />
         </TabsContent>
         <TabsContent value="recruiter">
