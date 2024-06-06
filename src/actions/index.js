@@ -72,3 +72,40 @@ export async function fetchJobApplicationForRecruiter(recruiterID) {
 }
 
 // update job application
+export async function updateJobApplicationAction(data, pathToRevalidate) {
+  await connectToDB();
+  const {
+    recruiterUserID,
+    name,
+    email,
+    candidateUserID,
+    status,
+    jobID,
+    _id,
+    jobAppliedDate,
+  } = data;
+  await Application.findOneAndUpdate(
+    {
+      _id: _id,
+    },
+    {
+      recruiterUserID,
+      name,
+      email,
+      candidateUserID,
+      status,
+      jobID,
+      jobAppliedDate,
+    },
+    { new: true }
+  );
+  revalidatePath(pathToRevalidate);
+}
+
+// get candidate details by candidate id
+export async function getCandidateDetailsByIDAction(currentCandidateID) {
+  await connectToDB();
+  const result = await Profile.findOne({ userId: currentCandidateID });
+
+  return JSON.parse(JSON.stringify(result));
+}

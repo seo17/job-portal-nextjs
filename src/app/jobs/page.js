@@ -7,6 +7,7 @@ import {
 } from "@/actions";
 import JobListing from "@/components/JobListing";
 import { currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import React from "react";
 
 async function page() {
@@ -14,6 +15,8 @@ async function page() {
 
   // Onboarding data
   const profileInfo = await fetchProfileAction(user?.id);
+
+  if (!profileInfo) redirect("/onboard");
 
   const jobList =
     profileInfo?.role === "candidate"

@@ -14,8 +14,6 @@ function PostNewJob({ profileInfo, user }) {
     companyName: profileInfo?.recruiterInfo?.companyName,
   });
 
-  console.log(jobFormData);
-
   function handlePostNewBtnValid() {
     return Object.keys(jobFormData).every(
       (control) => jobFormData[control].trim !== ""
