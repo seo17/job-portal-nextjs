@@ -1,11 +1,78 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import PostNewJob from "../PostNewJob";
 import RecruiterJobCard from "../RecruiterJobCard";
 import CandidateJobCard from "../CandidateJobCard";
+import { filterMenuDataArray, formUrlQuery } from "@/utils";
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarTrigger,
+} from "../ui/menubar";
+import { Label } from "../ui/label";
+import { useRouter, useSearchParams } from "next/navigation";
 
-function JobListing({ user, profileInfo, jobList, jobApplications }) {
+function JobListing({
+  user,
+  profileInfo,
+  jobList,
+  jobApplications,
+  filterCategories,
+}) {
+  const [filterParams, setFilterParams] = useState({});
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  function handleFilter(getSectionID, getCurrentOption) {
+    let cpyFilterParams = { ...filterParams };
+    const indexOfCurrentSection =
+      Object.keys(cpyFilterParams).indexOf(getSectionID);
+    if (indexOfCurrentSection === -1) {
+      cpyFilterParams = {
+        ...cpyFilterParams,
+        [getSectionID]: [getCurrentOption],
+      };
+    } else {
+      const indexOfCurrentOption =
+        cpyFilterParams[getSectionID].indexOf(getCurrentOption);
+      if (indexOfCurrentOption === -1)
+        cpyFilterParams[getSectionID].push(getCurrentOption);
+      else cpyFilterParams[getSectionID].splice(indexOfCurrentOption, 1);
+    }
+    setFilterParams(cpyFilterParams);
+    sessionStorage.setItem("filterParams", JSON.stringify(cpyFilterParams));
+  }
+
+  // Persist filter selection on refresh/re-render
+  useEffect(() => {
+    setFilterParams(JSON.parse(sessionStorage.getItem("filterParams")));
+  }, []);
+
+  useEffect(() => {
+    if (filterParams && Object.keys(filterParams).length > 0) {
+      let url = "";
+      url = formUrlQuery({
+        params: searchParams.toString(),
+        dataToAdd: filterParams,
+      });
+
+      router.push(url, { scroll: false });
+    }
+  }, [filterParams, searchParams]);
+
+  const filterMenus = filterMenuDataArray.map((item) => ({
+    id: item.id,
+    name: item.label,
+    options: [
+      ...new Set(filterCategories.map((listItem) => listItem[item.id])),
+    ],
+  }));
+
+  console.log("filterParams", filterParams);
+
   return (
     <div className="mx-auto max-w-7xl">
       <div className="flex justify-between items-baseline border-b border-gray-200 pb-6 pt-24">
@@ -16,7 +83,37 @@ function JobListing({ user, profileInfo, jobList, jobApplications }) {
         </h1>
         <div className="flex items-center">
           {profileInfo?.role === "candidate" ? (
-            <p>Filter</p>
+            <Menubar>
+              {filterMenus.map((filterMenu) => (
+                <MenubarMenu>
+                  <MenubarTrigger>{filterMenu.name}</MenubarTrigger>
+
+                  <MenubarContent>
+                    {filterMenu.options.map((option, optionIndex) => (
+                      <MenubarItem
+                        key={optionIndex}
+                        onClick={() => handleFilter(filterMenu.id, option)}
+                        className="flex items-center"
+                      >
+                        <div
+                          className={`h-4 w-4 border rounded border-gray-900 ${
+                            filterParams &&
+                            Object.keys(filterParams).length > 0 &&
+                            filterParams[filterMenu.id] &&
+                            filterParams[filterMenu.id].indexOf(option) > -1
+                              ? "bg-black"
+                              : ""
+                          }`}
+                        />
+                        <Label className="ml-3 cursor-pointer text-sm text-gray-600">
+                          {option}
+                        </Label>
+                      </MenubarItem>
+                    ))}
+                  </MenubarContent>
+                </MenubarMenu>
+              ))}
+            </Menubar>
           ) : (
             <PostNewJob profileInfo={profileInfo} user={user} />
           )}
@@ -28,15 +125,17 @@ function JobListing({ user, profileInfo, jobList, jobApplications }) {
             <div className="container mx-auto p-0 space-y-4">
               <div className="grid grid-cols-1 gap-x-4 gap-y-8 md:grid-cols-2 lg:grid-cols-3">
                 {jobList && jobList.length > 0
-                  ? jobList.map((jobItem) =>
+                  ? jobList.map((jobItem, index) =>
                       profileInfo?.role === "candidate" ? (
                         <CandidateJobCard
+                          key={index}
                           profileInfo={profileInfo}
                           jobItem={jobItem}
                           jobApplications={jobApplications}
                         />
                       ) : (
                         <RecruiterJobCard
+                          key={index}
                           profileInfo={profileInfo}
                           jobItem={jobItem}
                           jobApplications={jobApplications}

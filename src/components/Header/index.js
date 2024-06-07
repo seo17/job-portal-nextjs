@@ -87,6 +87,7 @@ function Header({ user, profileInfo }) {
                 key={menuItem.label}
                 className="inline-flex h-9 w-max items-center rounded-md bg-white px-4 py-2 text-sm font-medium"
                 href={menuItem.path}
+                onClick={() => sessionStorage.removeItem("filterParams")}
               >
                 {menuItem.label}
               </Link>
