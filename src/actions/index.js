@@ -6,6 +6,8 @@ import Job from "@/models/job";
 import Profile from "@/models/profile";
 import { revalidatePath } from "next/cache";
 
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+
 // create profile action
 export async function createProfileAction(formData, pathToRevalidate) {
   await connectToDB();
@@ -160,4 +162,39 @@ export async function updateProfileAction(data, pathToRevalidate) {
   );
 
   revalidatePath(pathToRevalidate);
+}
+
+// create stripe price id based on tier selection
+export async function createPriceIdAction(data) {
+  const session = await stripe.prices.create({
+    currency: "cad",
+    unit_amount: data?.amount * 100,
+    recurring: {
+      interval: "year",
+    },
+    product_data: {
+      name: "Premium Plan",
+    },
+  });
+
+  return {
+    success: true,
+    id: session?.id,
+  };
+}
+
+// create payment logic
+export async function createStripePaymentAction(data) {
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ["card"],
+    line_items: data?.lineItems,
+    mode: "subscription",
+    success_url: "http://localhost:3000/membership" + "?status=success",
+    cancel_url: "http://localhost:3000/membership" + "?status=cancel",
+  });
+
+  return {
+    success: true,
+    id: session?.id,
+  };
 }
