@@ -14,11 +14,22 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { createJobApplicationAction } from "@/actions";
+import { useToast } from "../ui/use-toast";
 
 function CandidateJobCard({ jobItem, profileInfo, jobApplications }) {
   const [showJobDetailsDrawer, setShowJobDetailsDrawer] = useState(false);
+  const { toast } = useToast();
 
   async function handleJobApply() {
+    if (!profileInfo?.isPremiumUser && jobApplications.length >= 2) {
+      setShowJobDetailsDrawer(false);
+      toast({
+        variant: "destructive",
+        title: "You can apply max 2 jobs",
+        description: "Please opt for membership for more job application.",
+      });
+      return;
+    }
     await createJobApplicationAction(
       {
         recruiterUserID: jobItem?.recruiterId,

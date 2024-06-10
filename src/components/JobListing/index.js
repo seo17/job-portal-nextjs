@@ -14,6 +14,7 @@ import {
 } from "../ui/menubar";
 import { Label } from "../ui/label";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useToast } from "../ui/use-toast";
 
 function JobListing({
   user,
@@ -25,6 +26,7 @@ function JobListing({
   const [filterParams, setFilterParams] = useState({});
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { toast } = useToast();
 
   function handleFilter(getSectionID, getCurrentOption) {
     let cpyFilterParams = { ...filterParams };
@@ -115,7 +117,11 @@ function JobListing({
               ))}
             </Menubar>
           ) : (
-            <PostNewJob profileInfo={profileInfo} user={user} />
+            <PostNewJob
+              jobList={jobList}
+              profileInfo={profileInfo}
+              user={user}
+            />
           )}
         </div>
       </div>

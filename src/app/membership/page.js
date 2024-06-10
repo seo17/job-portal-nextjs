@@ -1,7 +1,7 @@
 import React from "react";
 import Membership from "@/components/Membership";
 import { currentUser } from "@clerk/nextjs/server";
-import { redirect } from "next/dist/server/api-utils";
+import { redirect } from "next/navigation";
 import { fetchProfileAction } from "@/actions";
 
 async function MembershipPage() {
